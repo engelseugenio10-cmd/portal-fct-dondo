@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +20,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Forçar HTTPS em produção no Render para corrigir os formulários e carregamento de assets
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
     }
 }
