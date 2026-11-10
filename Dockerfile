@@ -16,13 +16,14 @@ COPY . .
 # Instalar dependências do Laravel
 RUN composer install --no-dev --optimize-autoloader
 
-# Garantir que a pasta database existe e criar o ficheiro SQLite localmente no projeto
+# Garantir que a pasta database existe e criar o ficheiro SQLite
 RUN mkdir -p database && touch database/database.sqlite
 
-# Dar permissões totais às pastas de escrita e à base de dados
+# Dar permissões totais
 RUN chmod -R 777 storage bootstrap/cache database
 
+# Expor a porta 10000 que o Render exige
 EXPOSE 10000
 
-# Executar migrações e iniciar o servidor
-CMD php artisan config:clear && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PORT:-10000}
+# Executar migrações e iniciar o servidor a escutar explicitamente na porta 10000 (ou ${PORT})
+CMD php artisan config:clear && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=10000
