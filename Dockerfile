@@ -16,14 +16,14 @@ COPY . .
 # Instalar dependências do Laravel
 RUN composer install --no-dev --optimize-autoloader
 
-# Criar ficheiro SQLite na pasta do projeto
+# Garantir que a pasta database existe e criar o ficheiro SQLite
 RUN mkdir -p database && touch database/database.sqlite
 
-# Dar permissões de escrita
+# Dar permissões totais
 RUN chmod -R 777 storage bootstrap/cache database
 
-# Expor a porta do Render
+# Expor a porta 10000
 EXPOSE 10000
 
-# Executar migrações primeiro (cria as tabelas todas) e depois arrancar o servidor
-CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=10000
+# Limpar cache de configuração, rodar migrações e iniciar o servidor
+CMD php artisan config:clear && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=10000
