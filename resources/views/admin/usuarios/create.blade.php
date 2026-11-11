@@ -35,12 +35,13 @@
                             @enderror
                         </div>
 
-                        <!-- Função / Role -->
+                        <!-- Função / Role / Categoria -->
                         <div class="mb-3">
                             <label for="role" class="form-label fw-semibold">Perfil / Função</label>
                             <select name="role" id="role" class="form-select @error('role') is-invalid @enderror" required>
-                                <option value="estudante" {{ old('role') == 'estudante' ? 'selected' : '' }}>Estudante</option>
-                                <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Administrador</option>
+                                <option value="estudante" {{ (old('role') == 'estudante' || old('categoria') == 'estudante') ? 'selected' : '' }}>Estudante</option>
+                                <option value="professor" {{ (old('role') == 'professor' || old('categoria') == 'professor') ? 'selected' : '' }}>Professor</option>
+                                <option value="admin" {{ (old('role') == 'admin' || old('categoria') == 'admin') ? 'selected' : '' }}>Administrador</option>
                             </select>
                             @error('role')
                                 <div class="invalid-feedback">{{ $message }}</div>

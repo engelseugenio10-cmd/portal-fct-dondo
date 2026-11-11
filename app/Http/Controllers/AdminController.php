@@ -46,24 +46,39 @@ class AdminDashboardController extends Controller
         $totalViews = Revista::sum('views');
         $totalDownloads = Revista::sum('downloads');
 
-        // 3. Submissões por Mês (Últimos 12 meses)
-        $submissoesPorMes = Revista::select(
-                DB::raw('MONTH(created_at) as mes'),
-                DB::raw('YEAR(created_at) as ano'),
-                DB::raw('COUNT(*) as total')
-            )
-            ->groupBy('ano', 'mes')
-            ->orderBy('ano', 'asc')
-            ->orderBy('mes', 'asc')
-            ->take(12)
-            ->get();
+        // 3. Submissões por Mês (Compatível com SQLite e MySQL)
+        $driver = DB::getDriverName();
+        if ($driver === 'sqlite') {
+            $submissoesPorMes = Revista::select(
+                    DB::raw("CAST(strftime('%m', created_at) as INTEGER) as mes"),
+                    DB::raw("CAST(strftime('%Y', created_at) as INTEGER) as ano"),
+                    DB::raw('COUNT(*) as total')
+                )
+                ->groupBy('ano', 'mes')
+                ->orderBy('ano', 'asc')
+                ->orderBy('mes', 'asc')
+                ->take(12)
+                ->get();
+        } else {
+            $submissoesPorMes = Revista::select(
+                    DB::raw('MONTH(created_at) as mes'),
+                    DB::raw('YEAR(created_at) as ano'),
+                    DB::raw('COUNT(*) as total')
+                )
+                ->groupBy('ano', 'mes')
+                ->orderBy('ano', 'asc')
+                ->orderBy('mes', 'asc')
+                ->take(12)
+                ->get();
+        }
 
         $mesesNomes = [1 => 'Jan', 2 => 'Fev', 3 => 'Mar', 4 => 'Abr', 5 => 'Mai', 6 => 'Jun', 7 => 'Jul', 8 => 'Ago', 9 => 'Set', 10 => 'Out', 11 => 'Nov', 12 => 'Dez'];
         $chartMesesLabels = [];
         $chartMesesValores = [];
 
         foreach ($submissoesPorMes as $item) {
-            $chartMesesLabels[] = $mesesNomes[$item->mes] . '/' . $item->ano;
+            $nomeMes = $mesesNomes[$item->mes] ?? $item->mes;
+            $chartMesesLabels[] = $nomeMes . '/' . $item->ano;
             $chartMesesValores[] = $item->total;
         }
 

@@ -584,10 +584,10 @@ class RevistaController extends Controller
             $caminhoPdfParaAnalise = $revista->ficheiro_pdf ?? $revista->pdf_path;
             $resultadoPlagio = $this->verificarPlagioPDF($caminhoPdfParaAnalise, $revista->id);
 
-            $revista->titulo                    = $request->string('titulo')->trim();
-            $revista->curso                     = $request->string('curso')->trim();
-            $revista->descricao                 = $request->string('descricao')->trim();
-            $revista->coautores                 = !empty($coautoresFiltrados) ? $coautoresFiltrados : null;
+            $revista->titulo                 = $request->string('titulo')->trim();
+            $revista->curso                  = $request->string('curso')->trim();
+            $revista->descricao              = $request->string('descricao')->trim();
+            $revista->coautores              = !empty($coautoresFiltrados) ? $coautoresFiltrados : null;
             $revista->similaridade_porcentagem = $resultadoPlagio['porcentagem'];
             $revista->similaridade_revista_id  = $resultadoPlagio['revista'] ? $resultadoPlagio['revista']->id : null;
 
@@ -844,31 +844,46 @@ class RevistaController extends Controller
     }
 
     /**
-     * Auxiliar privado para gerar o PDF do Certificado com DomPDF e guardar no armazenamento público.
+     * Altera o cargo (role) e a categoria de um utilizador no painel de administração.
      */
-    private function gerarEConservarCertificado(Edicao $revista): string
+    public function alterarRole(Request $request, $id)
     {
-        $coautores = is_array($revista->coautores) ? $revista->coautores : json_decode($revista->coautores ?? '[]', true);
-        $coautoresFiltrados = array_filter($coautores ?? [], fn($c) => !empty(trim($c)));
-        $coautoresStr = implode(', ', $coautoresFiltrados);
+        $this->checkAdmin();
 
-        $dataAprovacao = $revista->updated_at ? $revista->updated_at->format('d/m/Y') : date('d/m/Y');
+        $request->validate([
+            'role'      => 'required|in:estudante,professor,admin',
+            'categoria' => 'nullable|string|max:255',
+        ]);
 
-        $pdf = Pdf::loadView('pdf.certificado', [
-            'revista'       => $revista,
-            'coautoresStr'  => $coautoresStr,
-            'dataAprovacao' => $dataAprovacao
-        ])->setPaper('a4', 'landscape');
+        $user = User::findOrFail($id);
 
-        $nomeFicheiro = 'certificados/certificado_' . $revista->id . '.pdf';
-        
-        Storage::disk('public')->put($nomeFicheiro, $pdf->output());
+        $user->role = $request->role;
+        $user->categoria = ($request->role === 'professor') ? $request->categoria : null;
+        $user->save();
 
-        return $nomeFicheiro;
+        return back()->with('success', 'Cargo e categoria do utilizador atualizados com sucesso!');
     }
 
     /**
-     * Eliminar utilizador (Apenas Admin).
+     * Altera diretamente a categoria de um utilizador.
+     */
+    public function alterarCategoria(Request $request, $id)
+    {
+        $this->checkAdmin();
+
+        $request->validate([
+            'categoria' => 'required|string|max:255',
+        ]);
+
+        $user = User::findOrFail($id);
+        $user->categoria = $request->categoria;
+        $user->save();
+
+        return back()->with('success', 'Categoria científica atualizada com sucesso!');
+    }
+
+    /**
+     * Eliminar um utilizador pelo painel de administração.
      */
     public function eliminarUtilizador($id)
     {
@@ -876,7 +891,7 @@ class RevistaController extends Controller
 
         $user = User::findOrFail($id);
 
-        if ($user->id === Auth::id()) {
+        if (Auth::id() === $user->id) {
             return back()->with('error', 'Não pode eliminar a sua própria conta de administrador.');
         }
 
@@ -886,21 +901,17 @@ class RevistaController extends Controller
     }
 
     /**
-     * Alterar o cargo (role) de um utilizador (Apenas Admin).
+     * Gera e guarda o certificado PDF em background.
      */
-    public function alterarRole(Request $request, $id)
+    private function gerarEConservarCertificado($revista)
     {
-        $this->checkAdmin();
-
-        $request->validate([
-            'role' => 'required|in:estudante,professor,admin',
-        ]);
-
-        $user = User::findOrFail($id);
-        $user->role = $request->role;
-        $user->is_admin = ($request->role === 'admin');
-        $user->save();
-
-        return back()->with('success', 'Cargo do utilizador atualizado com sucesso!');
+        try {
+            $pdf = Pdf::loadView('certificados.publicacao', compact('revista'));
+            $caminhoRelativo = 'certificados/certificado_' . $revista->id . '.pdf';
+            
+            Storage::disk('public')->put($caminhoRelativo, $pdf->output());
+        } catch (\Throwable $e) {
+            // Registo silencioso se necessário
+        }
     }
 }

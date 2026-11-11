@@ -113,9 +113,12 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/admin/revistas/{id}/rejeitar', [RevistaController::class, 'rejeitar'])->name('admin.revistas.rejeitar');
     Route::delete('/admin/revistas/{id}/eliminar', [RevistaController::class, 'destroy'])->name('admin.revistas.eliminar');
 
-    // Gestão de Utilizadores pelo Admin
+    // Gestão de Utilizadores pelo Admin (com suporte a aliases 'utilizadores' e 'usuarios')
     Route::delete('/admin/utilizadores/{id}', [RevistaController::class, 'eliminarUtilizador'])->name('admin.utilizadores.eliminar');
+    Route::delete('/admin/usuarios/{id}', [RevistaController::class, 'eliminarUtilizador'])->name('admin.usuarios.destroy');
+    
     Route::patch('/admin/utilizadores/{id}/role', [RevistaController::class, 'alterarRole'])->name('admin.utilizadores.role');
+    Route::patch('/admin/utilizadores/{id}/categoria', [RevistaController::class, 'alterarCategoria'])->name('admin.utilizadores.categoria');
 
 });
 

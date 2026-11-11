@@ -420,3 +420,13 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    // Evita que submissões de formulários (comentários, avaliações, etc.) poluam o histórico do navegador.
+    // Assim, ao clicar no botão de voltar, regressa à listagem com apenas 1 clique.
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+</script>
+@endpush

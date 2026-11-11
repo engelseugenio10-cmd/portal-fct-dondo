@@ -89,7 +89,9 @@ class User extends Authenticatable
      */
     public function isEstudante(): bool
     {
-        return $this->role === 'estudante' || empty($this->role);
+        return $this->role === 'estudante' 
+            || $this->categoria === 'estudante' 
+            || (empty($this->role) && empty($this->categoria));
     }
 
     /**
@@ -97,7 +99,8 @@ class User extends Authenticatable
      */
     public function isProfessor(): bool
     {
-        return $this->role === 'professor';
+        return $this->role === 'professor' 
+            || $this->categoria === 'professor';
     }
 
     /**
@@ -105,6 +108,8 @@ class User extends Authenticatable
      */
     public function isAdmin(): bool
     {
-        return $this->role === 'admin' || (bool) $this->is_admin;
+        return $this->role === 'admin' 
+            || $this->categoria === 'admin' 
+            || (bool) $this->is_admin;
     }
 }

@@ -484,11 +484,11 @@
 
                                         <td class="text-end pe-4">
                                             @if(Auth::id() !== $u->id)
-                                                <form action="{{ route('admin.utilizadores.eliminar', $u->id) }}" method="POST" class="d-inline" onsubmit="return confirm('ATENÇÃO: Deseja eliminar este utilizador e TODOS os seus trabalhos submetidos?');">
+                                                <form action="{{ route('admin.usuarios.destroy', $u->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que pretende apagar este utilizador?')">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle p-1" style="width: 30px; height: 30px;" title="Eliminar Utilizador">
-                                                        <i class="bi bi-trash-fill"></i>
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar Utilizador">
+                                                        <i class="bi bi-trash"></i>
                                                     </button>
                                                 </form>
                                             @endif
@@ -496,7 +496,10 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="text-center py-4 text-muted">Nenhum utilizador registado.</td>
+                                        <td colspan="6" class="text-center py-5 text-muted">
+                                            <i class="bi bi-people fs-1 d-block mb-2 text-secondary"></i>
+                                            Nenhum utilizador encontrado.
+                                        </td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -504,9 +507,8 @@
                     </div>
                 </div>
             </div>
-
             @if(method_exists($utilizadores, 'hasPages') && $utilizadores->hasPages())
-                <div class="d-flex justify-content-center my-3">
+                <div class="d-flex justify-content-center mt-4">
                     {{ $utilizadores->links() }}
                 </div>
             @endif
@@ -518,23 +520,21 @@
 @endsection
 
 @push('scripts')
-<!-- Importação do Chart.js via CDN para os gráficos de estatística -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     function toggleCategoriaAdmin(selectElement, userId) {
         const catSelect = document.getElementById('admin_cat_' + userId);
-        if (catSelect) {
-            if (selectElement.value === 'professor') {
-                catSelect.style.display = 'block';
-            } else {
-                catSelect.style.display = 'none';
-                catSelect.value = '';
-            }
+        if (!catSelect) return;
+        if (selectElement.value === 'professor') {
+            catSelect.style.display = 'block';
+        } else {
+            catSelect.style.display = 'none';
+            catSelect.value = '';
         }
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        // Gráfico de Estado das Submissões (Rosca / Pie Chart)
+    document.addEventListener("DOMContentLoaded", function() {
+        // Gráfico de Estado das Submissões (Doughnut)
         const ctxStatus = document.getElementById('chartStatus');
         if (ctxStatus) {
             new Chart(ctxStatus, {
@@ -542,11 +542,7 @@
                 data: {
                     labels: ['Aprovados', 'Pendentes', 'Rejeitados'],
                     datasets: [{
-                        data: [
-                            {{ $aprovados ?? 0 }}, 
-                            {{ $pendentes ?? 0 }}, 
-                            {{ $rejeitados ?? 0 }}
-                        ],
+                        data: [{{ $aprovados ?? 0 }}, {{ $pendentes ?? 0 }}, {{ $rejeitados ?? 0 }}],
                         backgroundColor: ['#198754', '#ffc107', '#dc3545'],
                         borderWidth: 2
                     }]
@@ -555,46 +551,34 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
+                        legend: { position: 'bottom' }
                     }
                 }
             });
         }
 
-        // Gráfico de Submissões por Mês (Linha / Line Chart)
+        // Gráfico de Submissões por Mês (Bar)
         const ctxSubmissoes = document.getElementById('chartSubmissoes');
         if (ctxSubmissoes) {
             new Chart(ctxSubmissoes, {
-                type: 'line',
+                type: 'bar',
                 data: {
-                    labels: {!! json_encode($labelsMeses ?? []) !!},
+                    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
                     datasets: [{
-                        label: 'Submissões',
-                        data: {!! json_encode($dadosMeses ?? []) !!},
-                        borderColor: '#0d6efd',
-                        backgroundColor: 'rgba(13, 110, 253, 0.1)',
-                        fill: true,
-                        tension: 0.3,
-                        borderWidth: 3
+                        label: 'Trabalhos Submetidos',
+                        data: @json($dadosMensais ?? array_fill(0, 12, 0)),
+                        backgroundColor: '#0d6efd',
+                        borderRadius: 4
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                precision: 0
-                            }
-                        }
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
                     },
                     plugins: {
-                        legend: {
-                            display: false
-                        }
+                        legend: { display: false }
                     }
                 }
             });

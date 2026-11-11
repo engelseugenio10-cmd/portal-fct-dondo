@@ -25,8 +25,9 @@
                             <th scope="col" class="ps-4">ID</th>
                             <th scope="col">Nome</th>
                             <th scope="col">E-mail</th>
-                            <th scope="col">Função / Perfil</th>
-                            <th scope="col">Data de Registo</th>
+                            <th scope="col">Cargo Atual</th>
+                            <th scope="col">Nomear / Categoria</th>
+                            <th scope="col" class="text-end pe-4">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -36,27 +37,59 @@
                                 <td class="fw-semibold text-dark">{{ $usuario->name }}</td>
                                 <td>{{ $usuario->email }}</td>
                                 <td>
-                                    @if($usuario->role === 'admin')
+                                    @if($usuario->isAdmin())
                                         <span class="badge bg-danger rounded-pill px-3 py-2">
                                             <i class="bi bi-shield-lock me-1"></i> Administrador
                                         </span>
-                                    @elseif($usuario->role === 'estudante')
+                                    @elseif($usuario->isProfessor())
+                                        <span class="badge bg-success rounded-pill px-3 py-2">
+                                            <i class="bi bi-journal-richtext me-1"></i> Professor
+                                        </span>
+                                    @elseif($usuario->isEstudante())
                                         <span class="badge bg-primary rounded-pill px-3 py-2">
                                             <i class="bi bi-mortarboard me-1"></i> Estudante
                                         </span>
                                     @else
                                         <span class="badge bg-secondary rounded-pill px-3 py-2">
-                                            {{ ucfirst($usuario->role ?? 'Utilizador') }}
+                                            {{ ucfirst($usuario->role ?? $usuario->categoria ?? 'Utilizador') }}
                                         </span>
                                     @endif
                                 </td>
-                                <td class="text-muted small">
-                                    {{ $usuario->created_at ? $usuario->created_at->format('d/m/Y H:i') : '-' }}
+                                <td>
+                                    @if($usuario->isAdmin())
+                                        <span class="text-muted small fst-italic">Sua Conta Atual</span>
+                                    @else
+                                        <!-- Formulário para atualizar a categoria/área do professor diretamente na tabela -->
+                                        <form action="{{ route('admin.utilizadores.categoria', $usuario->id) }}" method="POST" class="d-flex align-items-center">
+                                            @csrf
+                                            @method('PATCH')
+
+                                            <select name="categoria" class="form-select form-select-sm me-2" required>
+                                                <option value="">Selecionar Categoria</option>
+                                                <option value="Ciências e exatas, Engenharia e tecnologia" {{ $usuario->categoria === 'Ciências e exatas, Engenharia e tecnologia' ? 'selected' : '' }}>Ciências Exatas & Engenharia</option>
+                                                <option value="Ambiente, Sociedade e Humanidade" {{ $usuario->categoria === 'Ambiente, Sociedade e Humanidade' ? 'selected' : '' }}>Ambiente, Sociedade & Humanidade</option>
+                                                <option value="Educação, pedagogia e psicologia" {{ $usuario->categoria === 'Educação, pedagogia e psicologia' ? 'selected' : '' }}>Educação, Pedagogia & Psicologia</option>
+                                                <option value="Ensino de Lingua e ciencia" {{ $usuario->categoria === 'Ensino de Lingua e ciencia' ? 'selected' : '' }}>Ensino de Línguas e Ciências</option>
+                                                <option value="Gestao, financas e recursos humanos" {{ $usuario->categoria === 'Gestao, financas e recursos humanos' ? 'selected' : '' }}>Gestão, Finanças & RH</option>
+                                            </select>
+
+                                            <button type="submit" class="btn btn-sm btn-outline-success" title="Guardar Categoria">
+                                                <i class="bi bi-check-lg">✓</i>
+                                            </button>
+                                        </form>
+                                    @endif
+                                </td>
+                                <td class="text-end pe-4">
+                                    @if (Route::has('admin.usuarios.edit'))
+                                        <a href="{{ route('admin.usuarios.edit', $usuario->id) }}" class="btn btn-sm btn-outline-primary me-1" title="Editar Utilizador">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                    @endif
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="text-center py-5 text-muted">
+                                <td colspan="6" class="text-center py-5 text-muted">
                                     <i class="bi bi-people fs-1 d-block mb-2 text-secondary"></i>
                                     Nenhum utilizador registado até ao momento.
                                 </td>
