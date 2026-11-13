@@ -3,10 +3,20 @@
 @section('content')
 <div class="container py-4">
     <!-- Navegação de Retorno Inteligente (Mantém a página e filtros anteriores) -->
+    @php
+        // Guarda a URL anterior na sessão apenas se não for a própria página atual
+        $urlAnterior = url()->previous();
+        $urlAtual = url()->current();
+        if ($urlAnterior !== $urlAtual && !str_contains($urlAnterior, '/revistas/' . $revista->id)) {
+            session(['url_retorno_catalogo' => $urlAnterior]);
+        }
+        $linkVoltar = session('url_retorno_catalogo', route('revistas.index'));
+    @endphp
+
     <div class="mb-3">
-        <button onclick="window.history.back()" class="btn btn-link text-decoration-none text-muted p-0 small fw-semibold">
+        <a href="{{ $linkVoltar }}" class="btn btn-link text-decoration-none text-muted p-0 small fw-semibold">
             <i class="bi bi-arrow-left me-1"></i> Voltar ao Catálogo
-        </button>
+        </a>
     </div>
 
     <!-- Alertas de Sucesso/Erro -->
@@ -423,8 +433,6 @@
 
 @push('scripts')
 <script>
-    // Evita que submissões de formulários (comentários, avaliações, etc.) poluam o histórico do navegador.
-    // Assim, ao clicar no botão de voltar, regressa à listagem com apenas 1 clique.
     if (window.history.replaceState) {
         window.history.replaceState(null, null, window.location.href);
     }
