@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('edicaos', function (Blueprint $table) {
-            if (!Schema::hasColumn('edicaos', 'coautores')) {
-                $table->text('coautores')->nullable()->after('orientador');
+        Schema::table('edicoes', function (Blueprint $table) {
+            if (!Schema::hasColumn('edicoes', 'coautores')) {
+                $table->text('coautores')->nullable();
             }
         });
     }
@@ -23,8 +23,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('edicaos', function (Blueprint $table) {
-            if (Schema::hasColumn('edicaos', 'coautores')) {
+        Schema::table('edicoes', function (Blueprint $table) {
+            if (Schema::hasColumn('edicoes', 'coautores')) {
                 $table->dropColumn('coautores');
             }
         });

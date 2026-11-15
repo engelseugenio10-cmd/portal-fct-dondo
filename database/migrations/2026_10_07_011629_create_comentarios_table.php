@@ -17,8 +17,8 @@ return new class extends Migration
             // Relação com o utilizador que comentou
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
 
-            // Relação com o trabalho/revista/edição (aponta para a tabela edicaos)
-            $table->foreignId('edicao_id')->constrained('edicaos')->onDelete('cascade');
+            // Relação com o trabalho/revista/edição (aponta para a tabela edicoes corrigida)
+            $table->foreignId('edicao_id')->constrained('edicoes')->onDelete('cascade');
 
             // Conteúdo do comentário
             $table->text('conteudo');

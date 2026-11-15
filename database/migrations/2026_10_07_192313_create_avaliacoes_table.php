@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('avaliacoes', function (Blueprint $table) {
             $table->id();
             
-            // Relacionamento com a tabela de trabalhos/edições (edicaos)
-            $table->foreignId('edicao_id')->constrained('edicaos')->onDelete('cascade');
+            // Relacionamento com a tabela de trabalhos/edições (atualizado para 'edicoes')
+            $table->foreignId('edicao_id')->constrained('edicoes')->onDelete('cascade');
             
             // Relacionamento opcional com a tabela de revistas (se aplicável)
             $table->foreignId('revista_id')->nullable()->constrained('revistas')->onDelete('cascade');

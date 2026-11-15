@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('edicaos', function (Blueprint $table) {
+        Schema::create('edicoes', function (Blueprint $table) {
             $table->id();
             
             // Relação com o utilizador (Estudante/Autor que submeteu)
@@ -26,15 +26,15 @@ return new class extends Migration
             $table->string('edicao')->nullable();
             $table->integer('ano_publicacao')->nullable();
             $table->string('tags')->nullable();
-            $table->string('palavras_chave')->nullable(); // Adicionado para bater com o Model
+            $table->string('palavras_chave')->nullable();
 
             // Ficheiros (Caminho para capas e PDFs no storage)
             $table->string('capa')->nullable();
-            $table->string('ficheiro_pdf'); // Alterado de pdf_path para ficheiro_pdf
+            $table->string('ficheiro_pdf');
 
             // Estado de Moderação (pendente, aprovado, rejeitado)
             $table->enum('status', ['pendente', 'aprovado', 'rejeitado'])->default('pendente');
-            $table->text('motivo_rejeicao')->nullable(); // Guardará o parecer/motivo de rejeição do Admin
+            $table->text('motivo_rejeicao')->nullable();
 
             // Métricas em tempo real
             $table->unsignedBigInteger('views')->default(0);
@@ -49,6 +49,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('edicaos');
+        Schema::dropIfExists('edicoes');
     }
 };
