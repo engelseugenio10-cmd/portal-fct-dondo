@@ -2,19 +2,12 @@
 
 use Illuminate\Support\Str;
 
-// Força o driver do Postgres no Windows a passar o ID do endpoint exigido pelo Neon
-putenv('PGOPTIONS=endpoint=ep-lively-field-b9ws7wml');
-
 return [
 
     /*
     |--------------------------------------------------------------------------
     | Default Database Connection Name
     |--------------------------------------------------------------------------
-    |
-    | Here you may specify which of the database connections below you wish
-    | to use as your default connection for database operations.
-    |
     */
 
     'default' => env('DB_CONNECTION', 'pgsql'),
@@ -23,11 +16,6 @@ return [
     |--------------------------------------------------------------------------
     | Database Connections
     |--------------------------------------------------------------------------
-    |
-    | Here are each of the database connections setup for your application.
-    | Of course, examples of each database platform are shown below to
-    | make development easy.
-    |
     */
 
     'connections' => [
@@ -62,16 +50,17 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'host' => 'ep-lively-field-b9ws7wml.c-7.eu-central-1.aws.neon.tech',
-            'port' => '5432',
-            'database' => 'neondb',
-            'username' => 'neondb_owner',
-            'password' => 'npg_IXtZx9Q7hUif',
-            'charset' => 'utf8',
+            'url' => env('DATABASE_URL'),
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '5432'),
+            'database' => env('DB_DATABASE', 'laravel'),
+            'username' => env('DB_USERNAME', 'root'),
+            'password' => env('DB_PASSWORD', ''),
+            'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
-            'sslmode' => 'require',
+            'sslmode' => env('DB_SSLMODE', 'require'),
             'options' => [
                 PDO::PGSQL_ATTR_DISABLE_PREPARES => false,
             ],
@@ -96,11 +85,6 @@ return [
     |--------------------------------------------------------------------------
     | Migration Repository Table
     |--------------------------------------------------------------------------
-    |
-    | This table keeps track of all the migrations that have already run for
-    | your application. Using this information, we can determine which of
-    | the database migrations on disk haven't actually been run in the db.
-    |
     */
 
     'migrations' => [
@@ -112,11 +96,6 @@ return [
     |--------------------------------------------------------------------------
     | Redis Databases
     |--------------------------------------------------------------------------
-    |
-    | Redis is an open source, fast, and advanced key-value store that also
-    | provides a richer body of commands than a typical key-value system
-    | such as memcached. You may specify your configuration here.
-    |
     */
 
     'redis' => [
@@ -130,7 +109,7 @@ return [
 
         'default' => [
             'url' => env('REDIS_URL'),
-            'host' => env('DB_HOST', '127.0.0.1'),
+            'host' => env('REDIS_HOST', '127.0.0.1'),
             'password' => env('REDIS_PASSWORD'),
             'port' => env('REDIS_PORT', '6379'),
             'database' => env('REDIS_DB', '0'),
@@ -138,7 +117,7 @@ return [
 
         'cache' => [
             'url' => env('REDIS_URL'),
-            'host' => env('DB_HOST', '127.0.0.1'),
+            'host' => env('REDIS_HOST', '127.0.0.1'),
             'password' => env('REDIS_PASSWORD'),
             'port' => env('REDIS_PORT', '6379'),
             'database' => env('REDIS_CACHE_DB', '1'),
