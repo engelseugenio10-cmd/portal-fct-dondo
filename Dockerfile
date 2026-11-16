@@ -25,8 +25,8 @@ RUN chmod -R 777 storage bootstrap/cache
 # Expor a porta 10000 exigida pelo Render
 EXPOSE 10000
 
-# Limpar caches, recriar todas as tabelas do zero no PostgreSQL e arrancar a aplicação
+# Limpar caches, correr migrações no PostgreSQL e arrancar a aplicação
 CMD CACHE_STORE=file SESSION_DRIVER=file php artisan config:clear && \
     CACHE_STORE=file SESSION_DRIVER=file php artisan cache:clear && \
-    CACHE_STORE=file SESSION_DRIVER=file php artisan migrate:fresh --force --seed && \
+    CACHE_STORE=file SESSION_DRIVER=file php artisan migrate --force && \
     CACHE_STORE=file SESSION_DRIVER=file php artisan serve --host=0.0.0.0 --port=10000
